@@ -1,6 +1,56 @@
 import unittest
-from htmlnode import HTMLNode, LeafNode, ParentNode
+from htmlnode import *
+from textnode import *
 
+
+class TestTextNodeToHTMLNode:
+    def test_text_type(self):
+        text_node = TextNode("Hello, world!", TextType.TEXT)
+        html_node = text_node_to_html_node(text_node)
+        assert html_node.tag == ""
+        assert html_node.value == "Hello, world!"
+        assert html_node.props == None
+
+    def test_bold_type(self):
+        text_node = TextNode("If I only had a brain", TextType.BOLD)
+        html_node = text_node_to_html_node(text_node)
+        assert html_node.tag == "b"
+        assert html_node.value == "If I only had a brain"
+        assert html_node.props == None
+    
+    def test_italic_type(self):
+        text_node = TextNode("Somebody once told me", TextType.ITALIC)
+        html_node = text_node_to_html_node(text_node)
+        assert html_node.tag == "i"
+        assert html_node.value == "Somebody once told me"
+        assert html_node.props == None
+
+    def test_code_type(self):
+        text_node = TextNode("The world is gonna roll me", TextType.CODE)
+        html_node = text_node_to_html_node(text_node)
+        assert html_node.tag == "code"
+        assert html_node.value == "The world is gonna roll me"
+        assert html_node.props == None
+
+    def test_links_type(self):
+        text_node = TextNode("https://www.boot.dev", TextType.LINKS)
+        html_node = text_node_to_html_node(text_node)
+        assert html_node.tag == "a"
+        assert html_node.value == "https://www.boot.dev"
+        assert html_node.props == {"href": "https://www.boot.dev"}
+
+    def test_images_type(self):
+        text_node = TextNode("The Shape of an L on a forehead", TextType.IMAGES, "https://imgur.com/JyyefuX")
+        html_node = text_node_to_html_node(text_node)
+        assert html_node.tag == "img"
+        assert html_node.value == ""
+        assert html_node.props == {"src": "https://imgur.com/JyyefuX", "alt": "The Shape of an L on a forehead"}
+
+    def test_invalid_text_type(self):
+        text_node = TextNode("Well, the years start coming", None)
+        with self.assertRaises(Exception):
+            html_node = text_node_to_html_node(text_node)
+            assert html_node == "Not a valid TextType"
 
 class TestHTMLNode(unittest.TestCase):
     def test_to_html_props(self):
