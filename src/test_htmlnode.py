@@ -33,14 +33,14 @@ class TestTextNodeToHTMLNode:
         assert html_node.props == None
 
     def test_links_type(self):
-        text_node = TextNode("https://www.boot.dev", TextType.LINKS)
+        text_node = TextNode("https://www.boot.dev", TextType.LINK)
         html_node = text_node_to_html_node(text_node)
         assert html_node.tag == "a"
         assert html_node.value == "https://www.boot.dev"
         assert html_node.props == {"href": "https://www.boot.dev"}
 
     def test_images_type(self):
-        text_node = TextNode("The Shape of an L on a forehead", TextType.IMAGES, "https://imgur.com/JyyefuX")
+        text_node = TextNode("The Shape of an L on a forehead", TextType.IMAGE, "https://imgur.com/JyyefuX")
         html_node = text_node_to_html_node(text_node)
         assert html_node.tag == "img"
         assert html_node.value == ""
