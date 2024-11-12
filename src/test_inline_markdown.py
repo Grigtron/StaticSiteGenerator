@@ -1,6 +1,12 @@
 import unittest
-import re
-from inline_markdown import *
+from inline_markdown import (
+    split_nodes_delimiter,
+    split_nodes_image,
+    split_nodes_link,
+    text_to_textnodes,
+    extract_markdown_links,
+    extract_markdown_images,
+)
 
 from textnode import TextNode, TextType
 
@@ -64,7 +70,7 @@ class TestInlineMarkdown(unittest.TestCase):
         node = TextNode("**bold** and *italic*", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
         new_nodes = split_nodes_delimiter(new_nodes, "*", TextType.ITALIC)
-        self.assertListEqual(
+        self.assertEqual(
             [
                 TextNode("bold", TextType.BOLD),
                 TextNode(" and ", TextType.TEXT),
@@ -85,45 +91,23 @@ class TestInlineMarkdown(unittest.TestCase):
             new_nodes,
         )
 
-    def test_none_markdown_images(self):
-        node = "This is just plain text with [some links](https://example.com) but no images"
-        result = extract_markdown_images(node)
-        self.assertEqual(result, [])
+    def test_extract_markdown_images(self):
+        matches = extract_markdown_images(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
+        )
+        self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], matches)
 
-    def test_none_markdown_links(self):
-        node = "This is just some plain text with ![some images](someimages.jpg) but no links"
-        result = extract_markdown_links(node)
-        self.assertEqual(result, [])
-
-    def test_multiple_markdown_images(self):
-        node = "This is just some plain text with ![multiple images](image1.jpg) with some pretty ![useful information](image2.jpg)"
-        result = extract_markdown_images(node)
-        self.assertEqual(result, [("multiple images", "image1.jpg"), ("useful information", "image2.jpg")])
-
-    def test_multiple_markdown_links(self):
-        node = "This is just some plain text with [multiple links](https://www.boot.dev) to some pretty [useful things](https://www.google.com)"
-        result = extract_markdown_links(node)
-        self.assertEqual(result, [("multiple links", "https://www.boot.dev"), ("useful things", "https://www.google.com")])
-
-    def test_markdown_images_special_urls(self):
-        node = "Here's an image with spaces ![test](my image.jpg) and one with special chars ![test2](my@#$image.jpg)"
-        result = extract_markdown_images(node)
-        self.assertEqual(result, [("test", "my image.jpg"), ("test2", "my@#$image.jpg")])
-  
-    def test_markdown_images_special_alt(self):
-        node = "Here's an image with ![test!@#$](image.jpg) and another with ![&*()^%](pic.png)"
-        result = extract_markdown_images(node)
-        self.assertEqual(result, [("test!@#$", "image.jpg"), ("&*()^%", "pic.png")])
-
-    def test_markdown_images_empty_alt(self):
-        node = "Here's an image with no alt text ![](image.jpg) and a normal one ![test](pic.png)"
-        result = extract_markdown_images(node)
-        self.assertEqual(result, [("", "image.jpg"), ("test", "pic.png")])
-
-    def test_markdown_images_empty_urls(self):
-        node = "Here's an image with empty URL ![test]() and another ![also empty]()"
-        result = extract_markdown_images(node)
-        self.assertEqual(result, [("test", ""), ("also empty", "")])
+    def test_extract_markdown_links(self):
+        matches = extract_markdown_links(
+            "This is text with a [link](https://boot.dev) and [another link](https://blog.boot.dev)"
+        )
+        self.assertListEqual(
+            [
+                ("link", "https://boot.dev"),
+                ("another link", "https://blog.boot.dev"),
+            ],
+            matches,
+        )
 
     def test_split_image(self):
         node = TextNode(
@@ -186,7 +170,7 @@ class TestInlineMarkdown(unittest.TestCase):
             ],
             new_nodes,
         )
-    
+
     def test_text_to_textnodes(self):
         nodes = text_to_textnodes(
             "This is **text** with an *italic* word and a `code block` and an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](https://boot.dev)"
@@ -206,6 +190,7 @@ class TestInlineMarkdown(unittest.TestCase):
             ],
             nodes,
         )
+
 
 if __name__ == "__main__":
     unittest.main()

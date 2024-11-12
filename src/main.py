@@ -1,34 +1,32 @@
-# hello world
 import os
 import shutil
 from textnode import *
 from htmlnode import *
 from inline_markdown import *
+from copystatic import *
+from gencontent import *
+
+dir_path_static = "./static"
+dir_path_public = "./public"
+dir_path_content = "./content"
+template_path = "./template.html"
 
 def main():
-    static_to_public_move("/home/grigaroni/workspace/github.com/Grigtron/static_site_generator/static", 
-                      "/home/grigaroni/workspace/github.com/Grigtron/static_site_generator/public")
+    print("Deleting public directory...")
+    if os.path.exists(dir_path_public):
+        shutil.rmtree(dir_path_public)
 
+    print("Copying static files to public directory...")
+    copy_files_recursive(dir_path_static, dir_path_public)
 
-def static_to_public_move(source, destination):
-    if not os.path.exists(destination):
-        os.mkdir(destination)
-    else:
-        shutil.rmtree(destination)
-        os.mkdir(destination)
+    print("Generating page...")
+    generate_page(
+        os.path.join(dir_path_content, "index.md"),
+        template_path,
+        os.path.join(dir_path_public, "index.html"),
+    )
     
-    entries = os.listdir(path=source)
-    for entry in entries:
-        entry_path = os.path.join(source, entry)
-        dest_path = os.path.join(destination, entry)
-
-        if os.path.isfile(entry_path):
-            shutil.copy(entry_path, dest_path)
-        elif os.path.isdir(entry_path):
-            os.mkdir(dest_path)
-            static_to_public_move(entry_path, dest_path)
 
 
 
-if __name__ == "__main__":
-    main()
+main()

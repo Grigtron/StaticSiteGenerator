@@ -1,6 +1,7 @@
 import re
-from textnode import *
-from htmlnode import *
+
+from textnode import TextNode, TextType
+
 
 def text_to_textnodes(text):
     nodes = [TextNode(text, TextType.TEXT)]
@@ -11,10 +12,11 @@ def text_to_textnodes(text):
     nodes = split_nodes_link(nodes)
     return nodes
 
+
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
     for old_node in old_nodes:
-        if old_node.text_type != TextType.TEXT.value:
+        if old_node.text_type != TextType.TEXT:
             new_nodes.append(old_node)
             continue
         split_nodes = []
@@ -31,18 +33,11 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         new_nodes.extend(split_nodes)
     return new_nodes
 
-def extract_markdown_images(text):
-    image_matches = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
-    return image_matches
-
-def extract_markdown_links(text):
-    link_matches = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
-    return link_matches
 
 def split_nodes_image(old_nodes):
     new_nodes = []
     for old_node in old_nodes:
-        if old_node.text_type != TextType.TEXT.value:
+        if old_node.text_type != TextType.TEXT:
             new_nodes.append(old_node)
             continue
         original_text = old_node.text
@@ -69,11 +64,10 @@ def split_nodes_image(old_nodes):
     return new_nodes
 
 
-
 def split_nodes_link(old_nodes):
     new_nodes = []
     for old_node in old_nodes:
-        if old_node.text_type != TextType.TEXT.value:
+        if old_node.text_type != TextType.TEXT:
             new_nodes.append(old_node)
             continue
         original_text = old_node.text
@@ -92,3 +86,16 @@ def split_nodes_link(old_nodes):
         if original_text != "":
             new_nodes.append(TextNode(original_text, TextType.TEXT))
     return new_nodes
+
+
+def extract_markdown_images(text):
+    pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    matches = re.findall(pattern, text)
+    return matches
+
+
+def extract_markdown_links(text):
+    pattern = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    matches = re.findall(pattern, text)
+    return matches
+
